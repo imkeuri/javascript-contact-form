@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Assestment</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <!-- Style section -->
+    <style>
+        .centered-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        /* Initially hide the required indicators */
+        .required-indicator {
+            display: none;
+            color: red;
+        }
+
+        /* Show indicators when the field is invalid after being touched */
+        .touched:invalid+.required-indicator {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body class="centered-content">
+    <div class="mdl-layout">
+        <div class="mdl-grid">
+            <div class="mdl-cell">
+                <div class="mdl-cell mdl-cell--12-col">
+                    <h3>Form Basic Information</h3>
+                </div>
+
+                <form class="mdl-cell mdl-cell--12-col" action="#" onsubmit="handleFormSubmit(event)" id="mainForm">
+                    <div class="mdl-cell mdl-cell--12-col">
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="uid"
+                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,12}$">
+                            <label class="mdl-textfield__label" for="uid">User Id</label>
+                            <span class="required-indicator" id="uidIndicator">Invalid UserID. It must contain an
+                                uppercase letter, a
+                                lowercase letter, a number, and be 8 to 12 characters long.</span>
+                        </div>
+                    </div>
+
+                    <div class="mdl-cell mdl-cell--12-col">
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="fname">
+                            <label class="mdl-textfield__label" for="fname">First Name</label>
+                            <span class="required-indicator" id="fnameIndicator">Required</span>
+
+                        </div>
+                    </div>
+                    <div class="mdl-cell mdl-cell--12-col">
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="lname">
+                            <label class="mdl-textfield__label" for="lname">Last Name</label>
+                            <span class="required-indicator" id="lnameIndicator">Required</span>
+
+                        </div>
+                    </div>
+                    <div class="mdl-cell mdl-cell--12-col">
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" placeholder="MM/DD/YYYY"
+                                onfocus="(this.type='date')" id="birthday">
+                            <label class="mdl-textfield__label" for="birthday">Date</label>
+                            <span class="required-indicator" id="birthdayIndicator">Required</span>
+
+                        </div>
+                    </div>
+
+                    <div class="mdl-cell mdl-cell--12-col">
+                        <button id="accept-btn"
+                            class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                            disabled>
+                            Accept
+                        </button>
+
+                        <button id="show-dialog" type="button" class="mdl-button">Show Dialog</button>
+                        <dialog class="mdl-dialog">
+                            <h4 class="mdl-dialog__title">20 X's</h4>
+                            <div id="x" class="mdl-dialog__content">
+                            </div>
+                            <div class="mdl-dialog__actions">
+                                <button type="button" class="mdl-button close">Close</button>
+                            </div>
+                        </dialog>
+                    </div>
+                </form>
+            </div>
+
+            <div class="mdl-cell mdl-card mdl-shadow--2dp">
+                <div class="mdl-card__title">
+                    <h2 class="mdl-card__title-text">Basic information</h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <div id="display-info-uid">
+                        <!-- User ID will be displayed here -->
+                    </div>
+                    <div id="display-info-fname">
+                        <!-- First Name will be displayed here -->
+                    </div>
+                    <div id="display-info-lname">
+                        <!-- Last Name will be displayed here -->
+                    </div>
+                    <div id="display-info-birthday">
+                        <!-- Birthday will be displayed here -->
+                    </div>
+                    <div id="no-info">NO INFORMATION AT THE MOMENT</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Script section -->
+        <script>
+            // Encapsulate DOM element retrieval
+            const dialog = document.querySelector('dialog');
+            const showDialogButton = document.querySelector('#show-dialog');
+            const useridInput = document.getElementById("uid");
+            const fnameInput = document.getElementById("fname");
+            const lnameInput = document.getElementById("lname");
+            const dateInput = document.getElementById("birthday");
+            const pElement = document.querySelector("#x");
+            const btnAccept = document.getElementById("accept-btn");
+
+            // Validate form inputs and toggle 'accept' button
+            document.getElementById('mainForm').addEventListener('input', function () {
+                btnAccept.disabled = !this.checkValidity();
+            });
+
+            // Polyfill for dialog if not natively supported
+            if (!dialog.showModal) {
+                dialogPolyfill.registerDialog(dialog);
+            }
+
+            // Show dialog
+            showDialogButton.addEventListener('click', function () {
+                printXs();
+                dialog.showModal();
+            });
+
+            // Close dialog
+            dialog.querySelector('.close').addEventListener('click', function () {
+                clearElement(pElement);
+                dialog.close();
+            });
+
+            // Input validation for each field
+            [useridInput, fnameInput, lnameInput, dateInput].forEach(input => {
+                input.addEventListener('blur', function () {
+                    validateInput(this, `${this.id}Indicator`);
+                });
+            });
+
+            // Function to clear an element's content
+            function clearElement(element) {
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+            }
+
+            // Function to validate input fields
+            function validateInput(inputField, indicatorId) {
+                const indicator = document.getElementById(indicatorId);
+                if (inputField.value === "" || !inputField.checkValidity()) {
+                    indicator.style.display = 'block';
+                    indicator.required = true;
+                } else {
+                    indicator.style.display = 'none';
+                }
+            }
+
+            // Handle form submission
+            function handleFormSubmit(event) {
+                event.preventDefault();
+                calculateAgeAndDisplay(dateInput.value);
+                displayUserInfo();
+            }
+
+            // Calculate age and display message
+            function calculateAgeAndDisplay(birthday) {
+                const currentDate = new Date();
+                const birthDate = new Date(birthday);
+                const ageDifMs = currentDate - birthDate;
+                const ageDate = new Date(ageDifMs);
+                const years = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+                if (years < 18) {
+                    alert("You are probably not old enough to take this class!");
+                } else {
+                    const days = years * 365;
+                    alert(`${fnameInput.value} ${lnameInput.value}, you have been breathing for ${days} days!`);
+                }
+            }
+
+            // Function to print 'x' characters
+            function printXs() {
+                let text = "";
+                for (let index = 1; index <= 20; index++) {
+                    text = text.padStart(index, "x");
+                    const createP = document.createElement("p");
+                    createP.textContent = text;
+                    pElement.appendChild(createP);
+                }
+            }
+
+            function displayUserInfo() {
+                document.getElementById("no-info").style.display = "none";
+
+                const elements = [
+                    { id: "display-info-uid", label: "User ID", value: useridInput.value },
+                    { id: "display-info-fname", label: "First Name", value: fnameInput.value },
+                    { id: "display-info-lname", label: "Last Name", value: lnameInput.value },
+                    { id: "display-info-birthday", label: "Birthday", value: dateInput.value }
+                ];
+
+                elements.forEach(elem => {
+                    let container = document.getElementById(elem.id).innerHTML = `${elem.label}: ${elem.value}`;
+                });
+            }
+        </script>
+</body>
+
+</html>
